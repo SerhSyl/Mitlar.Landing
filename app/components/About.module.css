@@ -1,0 +1,289 @@
+/* ─── Wrapper ─── */
+.aboutWrapper {
+  padding: 3rem 0 4rem;
+  max-width: 100vw;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Section header ─── */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 90%;
+  max-width: 1400px;
+}
+.line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent-gold), transparent);
+  flex-grow: 1;
+}
+.sectionTitle {
+  font-family: var(--font-hero);
+  font-size: 2.6rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* ─── Split layout ─── */
+.splitContainer {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  border-top: 1px solid var(--color-accent-gold);
+  border-bottom: 1px solid var(--color-accent-gold);
+  display: flex;
+  align-items: stretch;
+  background-color: var(--color-bg-primary);
+  overflow: hidden;
+  /* Fixed height — no 100vh gaps */
+  min-height: 560px;
+}
+
+/* ─── Right image banner ─── */
+.rightImageBanner {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 42%;
+  background-image: url('https://i.ibb.co/cSPW8LLC/E723155-D-7689-492-B-8469-7-BE0-BCEE4-F77.png');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+.imageGradientFade {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 100%;
+  background: linear-gradient(to right, var(--color-bg-primary) 0%, transparent 25%);
+}
+
+/* ─── Left field area ─── */
+.leftAlignedField {
+  width: 62%;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── SVG pitch wrapper — SQUARE ─── */
+.pitchGraphics {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+.svgField {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════════════════
+   QUADRANT OVERLAYS
+   Positions match SVG rects:
+   TL: x=3.5 y=3.5 w=43 h=43
+   TR: x=53.5 y=3.5
+   BL: x=3.5 y=53.5
+   BR: x=53.5 y=53.5
+═══════════════════════════════════════ */
+.quadrantOverlay {
+  position: absolute;
+  width: 43%;
+  height: 43%;
+  cursor: pointer;
+  border-radius: 21%;
+  overflow: hidden;
+  border: 1px solid rgba(195, 157, 103, 0.45);
+
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, width 0.35s ease, height 0.35s ease, top 0.35s ease, left 0.35s ease;
+  z-index: 5;
+}
+.quadrantOverlay:hover:not(.activeQuadrant) {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 4px 18px rgba(139, 109, 71, 0.18);
+}
+
+.quadrantPos1 { top: 3.5%; left: 3.5%; }
+.quadrantPos2 { top: 3.5%; left: 53.5%; }
+.quadrantPos3 { top: 53.5%; left: 3.5%; }
+.quadrantPos4 { top: 53.5%; left: 53.5%; }
+
+/* ─── COLLAPSED (preview) card ─── */
+.previewContent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.previewBgImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+.quadrantOverlay:hover:not(.activeQuadrant) .previewBgImage {
+  opacity: 0.65;
+}
+
+/* Light parchment gradient — left to right, long subtle transition */
+.previewContentOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--color-bg-primary) 0%,
+    rgba(242, 235, 225, 0.85) 40%,
+    rgba(242, 235, 225, 0.2) 80%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 0.5rem 0.5rem 0.6rem 0.6rem;
+  text-align: left;
+}
+.previewTitle {
+  font-family: var(--font-hero);
+  font-size: clamp(0.8rem, 1.8vw, 1.15rem);
+  color: var(--color-text-primary);
+  margin-bottom: 0.1rem;
+  line-height: 1.15;
+}
+.previewSubtitle {
+  font-size: clamp(0.6rem, 1.2vw, 0.78rem);
+  color: var(--color-text-primary);
+  opacity: 0.75;
+  margin-bottom: 0.3rem;
+  font-style: italic;
+}
+.previewMoreBtn {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--color-accent-gold);
+  border-radius: 999px;
+  font-size: clamp(0.55rem, 1vw, 0.7rem);
+  color: var(--color-text-header);
+  background: rgba(255, 250, 243, 0.6);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+/* ─── ACTIVE (expanded) zone — grows large but leaves field visible ─── */
+.activeQuadrant {
+  position: absolute !important;
+  top: 6% !important;
+  left: 6% !important;
+  width: 88% !important;
+  height: 88% !important;
+  border-radius: 24px;
+  z-index: 20;
+  border: 1px solid var(--color-accent-gold) !important;
+  background-color: var(--color-bg-primary) !important;
+  background-image: none !important;
+  box-shadow: 0 12px 40px rgba(65, 46, 18, 0.22);
+  cursor: default;
+  overflow: hidden;
+}
+
+.expandedBgImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+}
+
+.expandedContentOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--color-bg-primary) 0%,
+    rgba(242, 235, 225, 0.88) 45%,
+    rgba(242, 235, 225, 0.25) 85%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Expanded card inner layout ─── */
+.localExpandedCard {
+  padding: 1.5rem 1.8rem;
+  width: 80%; /* Only fill the left non-transparent part with text */
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Text flows left of float, wraps below when floated area ends */
+.cardTitle {
+  font-family: var(--font-hero);
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  color: var(--color-text-header);
+  margin: 0.2rem 0 0.4rem;
+  line-height: 1.15;
+}
+.expandedSubtitle {
+  font-size: 0.82rem;
+  color: var(--color-text-primary);
+  opacity: 0.7;
+  font-style: italic;
+  margin-bottom: 0.6rem;
+}
+.cardDesc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--color-text-primary);
+  margin: 0;
+  /* clears float so long text flows full-width below image */
+}
+
+/* Close button */
+.closeCardBtn {
+  position: absolute;
+  top: 0.8rem;
+  right: 1.2rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--color-text-primary);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s;
+  z-index: 10;
+  line-height: 1;
+}
+.closeCardBtn:hover { opacity: 1; background: rgba(255, 255, 255, 1); }
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .leftAlignedField { width: 100%; }
+  .rightImageBanner { display: none; }
+  .splitContainer { min-height: auto; }
+  .pitchGraphics { max-width: 90vw; }
+}
+@media (max-width: 560px) {
+  .sectionTitle { font-size: 2rem; }
+  .splitContainer { border-left: none; border-right: none; }
+}

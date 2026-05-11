@@ -1,0 +1,317 @@
+.equipmentWrapper {
+  padding: 4rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding: 0 2rem;
+}
+.line {
+  height: 1px;
+  background-color: var(--color-text-primary);
+  flex-grow: 1;
+  max-width: 80px;
+}
+.sectionTitle {
+  font-size: 2.8rem; /* Scaled down 15% */
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.scrollContainer {
+  width: 100%;
+  overflow-x: auto;
+  padding: 1.5rem 3rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent-gold) transparent;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  height: 10px;
+}
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: radial-gradient(circle at center, var(--color-accent-gold) 0%, #8b6d47 100%);
+  border-radius: 10px;
+}
+
+.scrollTrack {
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+  width: max-content;
+}
+
+.card {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  background: rgba(255, 250, 243, 0.84);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(195, 157, 103, 0.35);
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(65, 46, 18, 0.08);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(65, 46, 18, 0.14);
+  border-color: var(--color-accent-gold);
+}
+
+.cardActive {
+  width: 340px;
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 20px 48px rgba(139, 109, 71, 0.22);
+  cursor: default;
+}
+
+.cardActive:hover {
+  transform: none;
+}
+
+.imagePlaceholder {
+  height: 220px;
+  background: linear-gradient(180deg, rgba(223,236,221,0.6), rgba(244,235,223,0.8));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-header);
+  font-family: var(--font-hero);
+  font-size: 1.1rem;
+  transition: height 0.4s ease;
+  overflow: hidden;
+}
+
+.cardActive .imagePlaceholder {
+  height: 250px;
+}
+
+.cardContent {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.itemName {
+  font-size: 1.3rem; /* Reduced */
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.itemPrice {
+  color: var(--color-text-header);
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.expandableDetails {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.expanded {
+  max-height: 500px;
+  opacity: 1;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.itemDesc {
+  font-size: 0.9rem; /* Reduced */
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.waitlistNotif {
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+  opacity: 0.8;
+  font-style: italic;
+  padding: 0.5rem;
+  background: var(--color-bg-primary);
+  border-radius: 5px;
+}
+
+.notifyBtn {
+  margin-top: auto;
+  background-color: var(--color-btn-dark);
+  color: #fff;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 999px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  letter-spacing: 0.03em;
+}
+
+.notifyBtn:hover {
+  background-color: var(--color-btn-hover);
+}
+
+.waitlistForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.emailInput {
+  padding: 0.8rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-text-header);
+  background: var(--color-bg-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.emailInput:focus {
+  outline: none;
+  border-color: var(--color-accent-gold);
+}
+.submitEmailBtn {
+  background-color: var(--color-text-header);
+  color: #fff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.submitEmailBtn:hover {
+  background-color: var(--color-accent-gold);
+}
+.successMsg {
+  color: green;
+  font-weight: bold;
+  margin-top: 1rem;
+  background: rgba(0,255,0,0.1);
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.itemSubtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  opacity: 0.8;
+  margin-bottom: 0.8rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.rodoLabelContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.8rem 0;
+}
+
+.rodoLink {
+  font-size: 0.85rem;
+  color: var(--color-btn-dark);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.rodoStatusGreen {
+  font-size: 0.8rem;
+  color: green;
+  font-weight: bold;
+}
+
+.rodoStatusRed {
+  font-size: 0.8rem;
+  color: red;
+  font-weight: bold;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modalContent {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-accent-gold);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  color: var(--color-text-header);
+  margin-bottom: 1rem;
+}
+
+.modalText {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modalBtnReject {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-text-primary);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.modalBtnReject:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.modalBtnAccept {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--color-btn-dark); /* Using site green color */
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.modalBtnAccept:hover {
+  background: var(--color-btn-hover);
+}

@@ -1,0 +1,7 @@
+# Assistant Rules
+
+- **Branch Permission**: Always ask for user confirmation before making any changes or "installations" that impact the `main` branch.
+- **Workflow Integrity**: Ensure all changes are documented in the `task.md` and walkthroughs provided for non-trivial edits.
+- **Communication Style**: Respect that the user asks questions to **understand** the process. Do not interpret questions as rejection. 
+- **Pace of Change**: Avoid drastic or rapid changes to the plan without a clear and deliberate agreement. Ensure the user feels oriented and comfortable with each step.
+- **Visual Excellence**: Prioritize premium, modern design with smooth animations and responsive layouts (mobile-first).

@@ -1,0 +1,128 @@
+.section {
+  position: relative;
+  border-bottom: 1px solid rgba(195, 157, 103, 0.35);
+}
+
+.glassCard {
+  position: relative;
+  margin: 2rem 5%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-top: 1.5px solid var(--glass-border-t);
+  border-left: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: var(--glass-shadow);
+  transition: box-shadow 0.3s;
+}
+
+/* Diagonal reflection overlay */
+.glassCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 35%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glassCard:hover {
+  box-shadow: 0 16px 48px rgba(139,109,71,0.18), 0 4px 12px rgba(139,109,71,0.1),
+              inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(139,109,71,0.08);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: 80vh;
+  padding: 3.5rem 5%;
+}
+
+.textBlock {
+  position: relative;
+  z-index: 2;
+  width: 40%;
+  min-width: 280px;
+  padding-right: 2rem;
+}
+
+.title {
+  font-family: var(--font-hero);
+  font-size: clamp(3rem, 6vw, 7rem);
+  color: var(--color-text-header);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.slogan {
+  font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+  color: var(--color-text-primary);
+  opacity: 0.75;
+  font-style: italic;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: var(--color-btn-dark);
+  color: #f2ebe1;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.8rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s, transform 0.25s var(--transition-spring), box-shadow 0.25s;
+}
+
+.btn:hover {
+  background: var(--color-btn-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(74, 83, 66, 0.28);
+}
+
+.banner {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80%;
+  overflow: hidden;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(1px);
+}
+
+.blurLeft {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  background: linear-gradient(to right, var(--color-bg-primary) 0%, rgba(242, 235, 225, 0.6) 60%, transparent 100%);
+}
+
+@media (max-width: 768px) {
+  .textBlock { width: 70%; }
+  .banner    { width: 65%; }
+}
+
+@media (max-width: 480px) {
+  .textBlock { width: 85%; }
+}

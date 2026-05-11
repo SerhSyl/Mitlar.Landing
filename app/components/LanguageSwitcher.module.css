@@ -1,0 +1,32 @@
+.langSwitcher {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid rgba(139, 109, 71, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.langSwitcher:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-accent-gold);
+}
+
+.lang {
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.lang:hover {
+  opacity: 1;
+  color: var(--color-accent-gold);
+}
+
+.active {
+  color: var(--color-btn-dark);
+  font-weight: bold;
+}

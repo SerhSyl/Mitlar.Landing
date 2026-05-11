@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Images (stored externally / in Supabase Storage)
+*.png
+*.PNG
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.heic
+*.HEIC
+*.webp
+*.gif
+*.svg
+# Keep Next.js public SVGs
+!public/*.svg
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*

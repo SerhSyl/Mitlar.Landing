@@ -1,0 +1,195 @@
+.section {
+  position: relative;
+  border-bottom: 1px solid rgba(195, 157, 103, 0.35);
+}
+
+.glassCard {
+  position: relative;
+  margin: 2rem 5%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-top: 1.5px solid var(--glass-border-t);
+  border-left: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: var(--glass-shadow);
+}
+
+.glassCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 35%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  padding: 3.5rem 5%;
+}
+
+.sectionTitle {
+  font-family: var(--font-hero);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  color: var(--color-text-header);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Pinned Area ---- */
+.pinnedArea {
+  margin-bottom: 2rem;
+}
+
+.blogCard {
+  cursor: pointer;
+  transition: transform 0.3s var(--transition-spring), box-shadow 0.3s;
+}
+
+.pin1 {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+  border: 1px solid var(--glass-border);
+  border-top: 1.5px solid var(--glass-border-t);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  max-width: 680px;
+  margin: 0 auto 1.2rem;
+  overflow: hidden;
+}
+
+.pin1::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.28) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.pin1:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(139,109,71,0.18), inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.pinRow {
+  display: flex;
+  gap: 1.2rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.pin2, .pin3 {
+  position: relative;
+  flex: 1;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  border-top: 1.5px solid var(--glass-border-t);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.pin2::before, .pin3::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.24) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.pin2:hover, .pin3:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(139,109,71,0.15), inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-header);
+  background: rgba(195, 157, 103, 0.15);
+  border: 1px solid rgba(195, 157, 103, 0.4);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.cardTitle {
+  font-family: var(--font-hero);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: var(--color-text-header);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.excerpt {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  opacity: 0.75;
+  margin-top: 0.5rem;
+}
+
+.readMore {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-header);
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.pin1:hover .readMore { opacity: 1; }
+
+/* ---- All articles list ---- */
+.allList {
+  max-width: 680px;
+  margin: 1.5rem auto 0;
+}
+
+.allTitle {
+  font-family: var(--font-hero);
+  font-size: 1.2rem;
+  color: var(--color-text-header);
+  margin-bottom: 0.8rem;
+  opacity: 0.7;
+}
+
+.listItem {
+  background: var(--glass-bg);
+  border: 1px solid rgba(195, 157, 103, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.4rem;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.listItem:hover {
+  background: rgba(195, 157, 103, 0.1);
+}
+
+.listItem p {
+  font-size: 0.82rem;
+  opacity: 0.65;
+  margin-top: 0.3rem;
+}
+
+@media (max-width: 768px) {
+  .pinRow { flex-direction: column; }
+}
