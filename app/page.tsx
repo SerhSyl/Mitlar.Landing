@@ -2,6 +2,9 @@ import { supabase } from '../lib/supabase';
 import { unstable_noStore as noStore } from 'next/cache';
 import Hero from './components/Hero';
 import DevBlog from './components/DevBlog';
+import Contact from './components/Contact';
+import About from './components/About';
+import Equipment from './components/Equipment';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -12,26 +15,31 @@ export const metadata: Metadata = {
 };
 
 async function getSectionVisibility(): Promise<Record<string, boolean>> {
-  noStore(); // bypass Next.js fetch cache
+  noStore();
   const { data, error } = await supabase
     .from('sections')
     .select('key, is_visible');
   if (error || !data) {
-    // fallback: show both sections if DB fails
-    return { hero: true, devblog: true };
+    return { hero: true, devblog: true, contacts: true };
   }
   return Object.fromEntries(data.map(s => [s.key, s.is_visible]));
 }
 
 export default async function Home() {
   const vis = await getSectionVisibility();
-  const showHero    = vis['hero']    === true;
-  const showDevBlog = vis['devblog'] === true;
+  const showHero      = vis['hero']      === true;
+  const showAbout     = vis['about']     === true;
+  const showEquipment = vis['equipment'] === true;
+  const showDevBlog   = vis['devblog']   === true;
+  const showContacts  = vis['contacts']  === true;
 
   return (
     <main>
-      {showHero    && <section id="hero"><Hero /></section>}
-      {showDevBlog && <section id="devblog"><DevBlog /></section>}
+      {showHero      && <section id="hero"><Hero /></section>}
+      {showAbout     && <section id="about"><About /></section>}
+      {showEquipment && <section id="equipment"><Equipment /></section>}
+      {showDevBlog   && <section id="devblog"><DevBlog /></section>}
+      {showContacts  && <Contact />}
     </main>
   );
 }

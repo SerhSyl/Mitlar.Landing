@@ -112,3 +112,31 @@ export async function deletePost(id: string) {
   if (error) throw new Error(error.message);
   revalidatePath('/');
 }
+
+// ---- CONTACTS ----
+
+export async function updateContacts(formData: FormData) {
+  const email     = formData.get('email')     as string;
+  const phone     = formData.get('phone')     as string;
+  const location  = formData.get('location')  as string;
+  const instagram = formData.get('instagram') as string;
+  const facebook  = formData.get('facebook')  as string;
+  const youtube   = formData.get('youtube')   as string;
+  const patreon   = formData.get('patreon')   as string;
+
+  const { data: existing } = await supabaseAdmin.from('contacts').select('id').limit(1).single();
+
+  if (existing) {
+    const { error } = await supabaseAdmin
+      .from('contacts')
+      .update({ email, phone, location, instagram, facebook, youtube, patreon })
+      .eq('id', existing.id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabaseAdmin
+      .from('contacts')
+      .insert({ email, phone, location, instagram, facebook, youtube, patreon });
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath('/');
+}

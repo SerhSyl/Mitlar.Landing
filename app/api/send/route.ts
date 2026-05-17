@@ -45,7 +45,8 @@ export async function POST(req: Request) {
       `;
 
       return {
-        from: 'Mitlar News <onboarding@resend.dev>',
+        from: 'Mitlar News <info@mitlar.com>',
+        replyTo: 'twiklemetlar@gmail.com',
         to: email,
         subject: `[Mitlar] ${post.title}`,
         html: htmlContent,
