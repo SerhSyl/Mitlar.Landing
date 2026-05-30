@@ -1,196 +1,147 @@
-"use client";
-import { useState, useRef, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+'use client';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '../../lib/LanguageContext';
 import styles from './About.module.css';
 
+const CARDS = [
+  {
+    id: 1,
+    title:    { ua: 'Поле',        en: 'The Field',      pl: 'Pole' },
+    subtitle: { ua: 'Динамічні ігрові зони', en: 'Dynamic play zones', pl: 'Dynamiczne strefy gry' },
+    desc: {
+      ua: 'Mitlar грається на спеціально спроектованому полі, поділеному на чотири інтерактивні зони. Кожна зона має унікальні правила і тактичне значення, що вимагає від команд постійної адаптації стратегії.',
+      en: 'Mitlar is played on a specially designed field divided into four interactive zones. Each zone has unique rules and tactical significance, requiring teams to adapt their strategy constantly.',
+      pl: 'Mitlar rozgrywany jest na specjalnie zaprojektowanym boisku podzielonym na cztery interaktywne strefy. Każda strefa ma unikalne zasady i znaczenie taktyczne, co wymaga ciągłego dostosowywania strategii.',
+    },
+    bg: 'linear-gradient(135deg, #3d4a33, #5a6b4a)',
+  },
+  {
+    id: 2,
+    title:    { ua: 'Команда',     en: 'The Team',       pl: 'Drużyna' },
+    subtitle: { ua: 'Співпраця і стратегія', en: 'Cooperation & strategy', pl: 'Współpraca i strategia' },
+    desc: {
+      ua: 'Команда Mitlar складається з 5 гравців на моноколесах. Позиції гнучкі — гравці динамічно змінюють ролі залежно від стану гри, що вимагає глибокої командної синхронізації.',
+      en: 'A Mitlar team consists of 5 players, each riding a monowheel. Positions are fluid — players switch roles dynamically based on the game state, demanding deep team synchronisation.',
+      pl: 'Drużyna Mitlar składa się z 5 graczy na monokołach. Pozycje są płynne — gracze dynamicznie zmieniają role w zależności od stanu gry, wymagając głębokiej synchronizacji zespołu.',
+    },
+    bg: 'linear-gradient(135deg, #5c4a30, #7a6240)',
+  },
+  {
+    id: 3,
+    title:    { ua: 'Обладнання', en: 'The Equipment',  pl: 'Sprzęt' },
+    subtitle: { ua: 'Спеціально розроблене спорядження', en: 'Specially designed gear', pl: 'Specjalnie zaprojektowany sprzęt' },
+    desc: {
+      ua: 'Кожен елемент обладнання Mitlar розроблений спеціально для цього виду спорту. Від ковзного мітла до захисного спорядження — кожен предмет поєднує ефективність, безпеку та унікальну естетику.',
+      en: 'Every piece of Mitlar equipment is custom-designed for the sport. From the gliding broom to protective wear — each item balances performance, safety and the unique aesthetics of the game.',
+      pl: 'Każdy element sprzętu Mitlar jest specjalnie zaprojektowany dla tego sportu. Od gliding broom po odzież ochronną — każdy przedmiot łączy wydajność, bezpieczeństwo i unikalną estetykę gry.',
+    },
+    bg: 'linear-gradient(135deg, #2e4a3d, #3d6b55)',
+  },
+  {
+    id: 4,
+    title:    { ua: 'Правила',     en: 'The Rules',      pl: 'Zasady' },
+    subtitle: { ua: 'Легко вивчити, важко опанувати', en: 'Simple to learn, deep to master', pl: 'Proste do nauki, głębokie do opanowania' },
+    desc: {
+      ua: 'Правила Mitlar розроблені для інтуїтивного старту, але пропонують багату стратегічну глибину. Система нарахування очок винагороджує як індивідуальну майстерність, так і командний інтелект.',
+      en: 'Mitlar rules are crafted for intuitive entry while offering rich strategic depth. The scoring system rewards both individual skill and collective intelligence, making every match unique.',
+      pl: 'Zasady Mitlar są stworzone dla intuicyjnego wejścia, oferując bogatą głębię strategiczną. System punktacji nagradza zarówno indywidualne umiejętności, jak i zbiorową inteligencję.',
+    },
+    bg: 'linear-gradient(135deg, #3d3050, #564268)',
+  },
+];
+
 export default function About() {
   const { language } = useLanguage();
-  const [activeZone, setActiveZone] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const g = (field: { ua: string; en: string; pl: string }) =>
+    language === 'ua' ? field.ua : language === 'pl' ? field.pl : field.en;
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setActiveZone(null);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+  const [activeId, setActiveId] = useState<number | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const close = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setActiveId(null);
+      setIsClosing(false);
+    }, 220);
   }, []);
 
-  const defaultZones = [
-    {
-      id: 1, title: 'Ігровий процес', short: 'В чому полягає гра',
-      desc: 'Дві команди змагаються на полі 10х10 метрів. Гравці розбиті на локальні зони, де взаємодіють з м\'ячами та опонентами. Мета — провести м\'яч між всіма зонами у заданій послідовності без падіння. Кожна взаємодія потребує синхронізації між членами команди.'
-    },
-    {
-      id: 2, title: 'Гравці та екіпіровка', short: 'Як виглядають учасники',
-      desc: 'Гравець пересувається на моноколесі (електроуніциклі), тримаючи \'мітлу\' для балансу та маніпуляцій з м\'ячем. Захисне екіпірування є обов\'язковим. Це включає шолом, наколінники, налокітники та спеціальне взуття для кращого зчеплення.'
-    },
-    {
-      id: 3, title: 'Правила гри', short: 'Бали та механіка',
-      desc: 'Що довше команда утримує контроль над м\'ячем між передачами з зони в зону, тим вищий множник балів. Опонент намагається перехопити ініціативу або вибити м\'яч. Кожен раунд триває 10 хвилин, після чого рахунок фіксується.'
-    },
-    {
-      id: 4, title: 'Безпека', short: 'Свідомість ризиків',
-      desc: 'Цей вид спорту пов\'язаний з високою швидкістю на монотранспорті. Колеса обмежуються за швидкістю, а гравці проходять обов\'язкову сертифікацію безпечних падінь. Перед кожним матчем проводиться розминка та перевірка обладнання.'
-    },
-  ];
-
-  const [rawData, setRawData] = useState<any[]>([]);
-
-  useEffect(() => {
-    async function fetchZones() {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('*')
-        .eq('section', 'about_game');
-      if (data && data.length > 0) setRawData(data);
+  const toggle = (id: number) => {
+    if (activeId === id) {
+      close();
+    } else {
+      setIsClosing(false);
+      setActiveId(id);
     }
-    fetchZones();
-  }, []);
+  };
 
-  const displayZones = defaultZones.map(z => {
-    const match = rawData.find(d => d.block_key === `zone_${z.id}`);
-    if (match) {
-      const getL = (field: string) =>
-        language === 'ua' ? match[field] : (match[`${field}_${language}`] || match[field]);
-      let imgUrl = match.image_url || null;
-      if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/')) imgUrl = '/' + imgUrl;
-      return {
-        ...z,
-        title: getL('title') || z.title,
-        subtitle: getL('button_text') || z.short,
-        desc: getL('content') || z.desc,
-        image_url: imgUrl,
-      };
-    }
-    return { ...z, subtitle: z.short, image_url: null };
-  });
+  const activeCard = CARDS.find(c => c.id === activeId) ?? null;
 
-  const moreLabel   = language === 'ua' ? 'Більше' : (language === 'en' ? 'More' : 'Więcej');
-  const sectionTitle = language === 'ua' ? 'Про гру' : (language === 'en' ? 'About the game' : 'O grze');
+  const moreLabel    = language === 'ua' ? 'Більше ↓' : language === 'pl' ? 'Więcej ↓' : 'More ↓';
+  const sectionTitle = language === 'ua' ? 'Про гру'  : language === 'pl' ? 'O grze'   : 'About the Game';
 
   return (
-    <div className={styles.aboutWrapper} id="about">
-      <div className={styles.sectionHeader}>
-        <div className={styles.line} />
-        <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
-        <div className={styles.line} />
-      </div>
+    <section className={styles.section} id="section-about">
+      <div className={styles.glassCard}>
+        <div className={styles.layout}>
 
-      <div className={styles.splitContainer}>
-        {/* ── Left: SVG Field + Zone Overlays ── */}
-        <div className={styles.leftAlignedField} ref={containerRef}>
-          <div className={styles.pitchGraphics}>
+          {/* ── Left: title + 2×2 grid ── */}
+          <div className={styles.leftPanel}>
+            <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
 
-            {/* ── NEW SVG: matches hand-drawn sketch ── */}
-            <svg viewBox="0 0 100 100" className={styles.svgField} aria-hidden="true">
-              {/* Outer rounded border */}
-              <rect x="1.5" y="1.5" width="97" height="97" rx="13" ry="13"
-                fill="none" stroke="var(--color-text-header)" strokeWidth="1.0" />
-
-              {/* Top-left quadrant */}
-              <rect x="3.5" y="3.5" width="43" height="43" rx="9" ry="9"
-                fill="none" stroke="var(--color-text-header)" strokeWidth="0.8" />
-              {/* Top-right quadrant */}
-              <rect x="53.5" y="3.5" width="43" height="43" rx="9" ry="9"
-                fill="none" stroke="var(--color-text-header)" strokeWidth="0.8" />
-              {/* Bottom-left quadrant */}
-              <rect x="3.5" y="53.5" width="43" height="43" rx="9" ry="9"
-                fill="none" stroke="var(--color-text-header)" strokeWidth="0.8" />
-              {/* Bottom-right quadrant */}
-              <rect x="53.5" y="53.5" width="43" height="43" rx="9" ry="9"
-                fill="none" stroke="var(--color-text-header)" strokeWidth="0.8" />
-
-              {/* Horizontal separator lines — stop at circle */}
-              <line x1="3.5"  y1="50" x2="43"   y2="50"
-                stroke="var(--color-text-header)" strokeWidth="0.5" opacity="0.55" />
-              <line x1="57"   y1="50" x2="96.5" y2="50"
-                stroke="var(--color-text-header)" strokeWidth="0.5" opacity="0.55" />
-              {/* Vertical separator lines — stop at circle */}
-              <line x1="50" y1="3.5"  x2="50" y2="43"
-                stroke="var(--color-text-header)" strokeWidth="0.5" opacity="0.55" />
-              <line x1="50" y1="57"   x2="50" y2="96.5"
-                stroke="var(--color-text-header)" strokeWidth="0.5" opacity="0.55" />
-
-              {/* Center: outer circle */}
-              <circle cx="50" cy="50" r="7"
-                fill="var(--color-bg-primary)"
-                stroke="var(--color-text-header)" strokeWidth="1.0" />
-              {/* Center: inner ring */}
-              <circle cx="50" cy="50" r="3.8"
-                fill="none"
-                stroke="var(--color-text-header)" strokeWidth="0.7" />
-            </svg>
-
-            {/* ── Zone overlays ── */}
-            {displayZones.map(zone => (
-              <div
-                key={zone.id}
-                className={`${styles.quadrantOverlay} ${styles[`quadrantPos${zone.id}`]} ${activeZone === zone.id ? styles.activeQuadrant : ''}`}
-                onClick={() => setActiveZone(zone.id === activeZone ? null : zone.id)}
-                role="button"
-                aria-label={zone.title}
-                tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && setActiveZone(zone.id === activeZone ? null : zone.id)}
-              >
-                {activeZone === zone.id ? (
-                  /* ── EXPANDED card ── */
-                  <>
-                    {zone.image_url && (
-                      <div
-                        className={styles.expandedBgImage}
-                        style={{ backgroundImage: `url(${zone.image_url})` }}
-                      />
-                    )}
-                    <div className={styles.expandedContentOverlay}>
-                      {/* Close */}
-                      <button
-                        className={styles.closeCardBtn}
-                        onClick={e => { e.stopPropagation(); setActiveZone(null); }}
-                        aria-label="Close"
-                      >×</button>
-
-                      <div className={styles.localExpandedCard}>
-                        {/* Text: flows left */}
-                        <h4 className={styles.cardTitle}>{zone.title}</h4>
-                        {zone.subtitle && (
-                          <p className={styles.expandedSubtitle}>{zone.subtitle}</p>
-                        )}
-                        <p className={styles.cardDesc}>{zone.desc}</p>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  /* ── COLLAPSED card ── */
-                  <div className={styles.previewContent}>
-                    {zone.image_url && (
-                      <div
-                        className={styles.previewBgImage}
-                        style={{ backgroundImage: `url(${zone.image_url})` }}
-                      />
-                    )}
-                    <div className={styles.previewContentOverlay}>
-                      <h3 className={styles.previewTitle}>{zone.title}</h3>
-                      {zone.subtitle && (
-                        <p className={styles.previewSubtitle}>{zone.subtitle}</p>
-                      )}
-                      <span className={styles.previewMoreBtn}>{moreLabel}</span>
+            <div className={styles.grid}>
+              {CARDS.map(card => (
+                <div
+                  key={card.id}
+                  className={styles.card}
+                  onClick={() => toggle(card.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && toggle(card.id)}
+                >
+                  <div className={styles.cardBg} style={{ background: card.bg }} />
+                  <div className={styles.cardGradient} />
+                  <div className={styles.cardInner}>
+                    <h3 className={styles.cardTitle}>{g(card.title)}</h3>
+                    <p className={styles.cardSubtitle}>{g(card.subtitle)}</p>
+                    <div className={styles.cardFooter}>
+                      <span className={styles.toggleBtn}>{moreLabel}</span>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                </div>
+              ))}
+            </div>
 
-        {/* ── Right: gradient-faded image banner ── */}
-        <div className={styles.rightImageBanner}>
-          <div className={styles.imageGradientFade} />
+            {/* ── Expanded card overlay (80% of leftPanel) ── */}
+            {activeCard && (
+              <div
+                className={`${styles.expandOverlay} ${isClosing ? styles.expandOverlayOut : ''}`}
+                onClick={e => { if (e.target === e.currentTarget) close(); }}
+              >
+                <div
+                  className={`${styles.expandBox} ${isClosing ? styles.expandBoxOut : ''}`}
+                  style={{ background: activeCard.bg }}
+                >
+                  <div className={styles.expandGradient} />
+                  <div className={styles.expandInner}>
+                    <button className={styles.closeBtn} onClick={close} aria-label="Close">✕</button>
+                    <h3 className={styles.expandTitle}>{g(activeCard.title)}</h3>
+                    <p className={styles.expandSubtitle}>{g(activeCard.subtitle)}</p>
+                    <p className={styles.expandDesc}>{g(activeCard.desc)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Right: banner placeholder ── */}
+          <div className={styles.rightBanner}>
+            <div className={styles.bannerPlaceholder} />
+            <div className={styles.bannerFade} />
+          </div>
+
         </div>
       </div>
-    </div>
+    </section>
   );
 }

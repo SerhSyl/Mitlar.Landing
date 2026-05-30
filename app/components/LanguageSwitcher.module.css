@@ -1,32 +1,54 @@
+/* ── Language Switcher: glassmorphism pill ── */
 .langSwitcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.langBtn {
+  position: relative;
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  background: var(--color-bg-secondary);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  border: 1px solid rgba(139, 109, 71, 0.4);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(240, 232, 216, 0.55);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: color 0.22s ease;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.langSwitcher:hover {
-  background: var(--color-bg-primary);
-  border-color: var(--color-accent-gold);
+.langBtn:hover {
+  color: rgba(240, 232, 216, 0.85);
 }
 
-.lang {
-  opacity: 0.6;
-  transition: opacity 0.3s;
+.langBtnActive {
+  color: #1a1a14;
+  background: linear-gradient(
+    135deg,
+    rgba(195, 157, 103, 0.95) 0%,
+    rgba(218, 185, 130, 0.9) 100%
+  );
+  box-shadow:
+    0 2px 8px rgba(139, 109, 71, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.lang:hover {
-  opacity: 1;
-  color: var(--color-accent-gold);
-}
-
-.active {
-  color: var(--color-btn-dark);
-  font-weight: bold;
+.langBtnActive:hover {
+  color: #1a1a14;
 }

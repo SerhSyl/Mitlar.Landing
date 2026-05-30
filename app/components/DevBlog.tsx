@@ -1,23 +1,29 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useLanguage } from '../../lib/LanguageContext';
 import styles from './DevBlog.module.css';
 
 interface BlogPost {
   id: string;
-  title: string;
-  excerpt: string | null;
-  content: string | null;
+  title: string;    title_ua: string;    title_pl: string;
+  excerpt: string | null; excerpt_ua: string | null; excerpt_pl: string | null;
+  content: string | null; content_ua: string | null; content_pl: string | null;
   pin_position: number | null;
   created_at: string;
 }
 
 export default function DevBlog() {
+  const { language } = useLanguage();
+  const gl = (en: string, ua: string, pl: string) =>
+    language === 'ua' ? ua : language === 'pl' ? pl : en;
+  const gf = (en: string | null, ua: string | null, pl: string | null) =>
+    (language === 'ua' ? ua : language === 'pl' ? pl : en) ?? en ?? '';
+
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [activePost, setActivePost] = useState<BlogPost | null>(null);
   const [showAllList, setShowAllList] = useState(false);
 
-  // Subscribe modal state
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [subEmail, setSubEmail] = useState('');
   const [subRodo, setSubRodo] = useState(false);
@@ -27,11 +33,11 @@ export default function DevBlog() {
   useEffect(() => {
     supabase
       .from('blog_posts')
-      .select('id, title, excerpt, content, pin_position, created_at')
+      .select('id, title, title_ua, title_pl, excerpt, excerpt_ua, excerpt_pl, content, content_ua, content_pl, pin_position, created_at')
       .eq('is_published', true)
       .order('pin_position', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
-      .then(({ data }) => { if (data) setPosts(data); });
+      .then(({ data }) => { if (data) setPosts(data as BlogPost[]); });
   }, []);
 
   const pinned1  = posts.find(p => p.pin_position === 1);
@@ -40,115 +46,85 @@ export default function DevBlog() {
   const unpinned = posts.filter(p => p.pin_position === null);
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+    new Date(iso).toLocaleDateString(
+      language === 'ua' ? 'uk-UA' : language === 'pl' ? 'pl-PL' : 'en-GB',
+      { year: 'numeric', month: 'long', day: 'numeric' }
+    );
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubError('');
     if (!subRodo) {
-      setSubError('Please agree to the Privacy Policy (RODO).');
+      setSubError(gl(
+        'Please agree to the Privacy Policy (RODO).',
+        'Погодьтесь з Політикою конфіденційності (RODO).',
+        'Prosimy o wyrażenie zgody na Politykę Prywatności (RODO).'
+      ));
       return;
     }
     const { error } = await supabase.from('waitlist').insert([{
-      email: subEmail,
-      rodo_consent: subRodo,
-      newsletter_consent: true,
-      source: 'devblog_modal',
+      email: subEmail, rodo_consent: subRodo, newsletter_consent: true, source: 'devblog_modal',
     }]);
     if (error && error.code !== '23505') {
-      setSubError('Subscription error: ' + error.message);
+      setSubError(gl('Subscription error: ', 'Помилка підписки: ', 'Błąd subskrypcji: ') + error.message);
     } else {
       setSubSuccess(true);
       setSubEmail('');
     }
   };
 
-  const openSubscribe = () => {
-    setSubSuccess(false);
-    setSubError('');
-    setShowSubscribe(true);
-  };
+  const openSubscribe = () => { setSubSuccess(false); setSubError(''); setShowSubscribe(true); };
+
+  const readLabel      = gl('Read article →',      'Читати →',                      'Czytaj →');
+  const allLabel       = gl('All articles ↓',      'Всі статті ↓',                 'Wszystkie artykuły ↓');
+  const hideLabel      = gl('Hide articles ↑',     'Сховати ↑',                    'Ukryj ↑');
+  const subscribeLabel = gl('Subscribe for updates','Підписатись на оновлення',     'Subskrybuj');
+  const closeLabel     = gl('Close',               'Закрити',                       'Zamknij');
+
+  const renderCard = (post: BlogPost, cls: string, tag: string) => (
+    <div
+      className={`${cls} ${styles.blogCard}`}
+      onClick={() => setActivePost(post)}
+      role="button" tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' && setActivePost(post)}
+    >
+      <span className={styles.tag}>{tag}</span>
+      <h3 className={styles.cardTitle}>{gf(post.title, post.title_ua, post.title_pl)}</h3>
+      {gf(post.excerpt, post.excerpt_ua, post.excerpt_pl) &&
+        <p className={styles.excerpt}>{gf(post.excerpt, post.excerpt_ua, post.excerpt_pl)}</p>}
+      <span className={styles.readMore}>{readLabel}</span>
+    </div>
+  );
 
   return (
     <>
       <section className={styles.section} id="section-devblog">
         <div className={styles.glassCard}>
           <div className={styles.content}>
-            <h2 className={styles.sectionTitle}>Dev Blog</h2>
-
-            {/* Pinned layout */}
+            <h2 className={styles.sectionTitle}>{gl('Dev Blog', 'Дев Блог', 'Dev Blog')}</h2>
             <div className={styles.pinnedArea}>
-              {pinned1 && (
-                <div
-                  className={`${styles.pin1} ${styles.blogCard}`}
-                  onClick={() => setActivePost(pinned1)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && setActivePost(pinned1)}
-                >
-                  <span className={styles.tag}>Development Update</span>
-                  <h3 className={styles.cardTitle}>{pinned1.title}</h3>
-                  {pinned1.excerpt && <p className={styles.excerpt}>{pinned1.excerpt}</p>}
-                  <span className={styles.readMore}>Read article →</span>
-                </div>
-              )}
-
+              {pinned1 && renderCard(pinned1, styles.pin1, gl('Development Update', 'Оновлення', 'Aktualizacja'))}
               {(pinned2 || pinned3) && (
                 <div className={styles.pinRow}>
-                  {pinned2 && (
-                    <div
-                      className={`${styles.pin2} ${styles.blogCard}`}
-                      onClick={() => setActivePost(pinned2)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => e.key === 'Enter' && setActivePost(pinned2)}
-                    >
-                      <span className={styles.tag}>Design</span>
-                      <h3 className={styles.cardTitle}>{pinned2.title}</h3>
-                      {pinned2.excerpt && <p className={styles.excerpt}>{pinned2.excerpt}</p>}
-                      <span className={styles.readMore}>Read article →</span>
-                    </div>
-                  )}
-                  {pinned3 && (
-                    <div
-                      className={`${styles.pin3} ${styles.blogCard}`}
-                      onClick={() => setActivePost(pinned3)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => e.key === 'Enter' && setActivePost(pinned3)}
-                    >
-                      <span className={styles.tag}>Equipment</span>
-                      <h3 className={styles.cardTitle}>{pinned3.title}</h3>
-                      {pinned3.excerpt && <p className={styles.excerpt}>{pinned3.excerpt}</p>}
-                      <span className={styles.readMore}>Read article →</span>
-                    </div>
-                  )}
+                  {pinned2 && renderCard(pinned2, styles.pin2, gl('Design', 'Дизайн', 'Design'))}
+                  {pinned3 && renderCard(pinned3, styles.pin3, gl('Equipment', 'Обладнання', 'Sprzęt'))}
                 </div>
               )}
             </div>
-
-            {/* All articles toggle */}
             {unpinned.length > 0 && (
               <div className={styles.allList}>
-                <button
-                  className={styles.allBtn}
-                  onClick={() => setShowAllList(s => !s)}
-                >
-                  {showAllList ? 'Hide articles ↑' : 'All articles ↓'}
+                <button className={styles.allBtn} onClick={() => setShowAllList(s => !s)}>
+                  {showAllList ? hideLabel : allLabel}
                 </button>
                 {showAllList && (
                   <div className={styles.listItems}>
                     {unpinned.map(post => (
-                      <div
-                        key={post.id}
-                        className={styles.listItem}
-                        onClick={() => setActivePost(post)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={e => e.key === 'Enter' && setActivePost(post)}
-                      >
-                        <strong>{post.title}</strong>
-                        {post.excerpt && <p>{post.excerpt}</p>}
+                      <div key={post.id} className={styles.listItem}
+                        onClick={() => setActivePost(post)} role="button" tabIndex={0}
+                        onKeyDown={e => e.key === 'Enter' && setActivePost(post)}>
+                        <strong>{gf(post.title, post.title_ua, post.title_pl)}</strong>
+                        {gf(post.excerpt, post.excerpt_ua, post.excerpt_pl) &&
+                          <p>{gf(post.excerpt, post.excerpt_ua, post.excerpt_pl)}</p>}
                       </div>
                     ))}
                   </div>
@@ -161,85 +137,56 @@ export default function DevBlog() {
 
       {/* ===== ARTICLE MODAL ===== */}
       {activePost && (
-        <div
-          className={styles.modalOverlay}
-          onClick={e => { if (e.target === e.currentTarget) setActivePost(null); }}
-        >
+        <div className={styles.modalOverlay}
+          onClick={e => { if (e.target === e.currentTarget) setActivePost(null); }}>
           <div className={styles.modalBox}>
-            <button
-              className={styles.modalClose}
-              onClick={() => setActivePost(null)}
-              aria-label="Close"
-            >✕</button>
-
-            <span className={styles.tag}>Development Update</span>
-            <h3 className={styles.modalTitle}>{activePost.title}</h3>
+            <button className={styles.modalClose} onClick={() => setActivePost(null)} aria-label="Close">✕</button>
+            <span className={styles.tag}>{gl('Development Update', 'Оновлення', 'Aktualizacja')}</span>
+            <h3 className={styles.modalTitle}>{gf(activePost.title, activePost.title_ua, activePost.title_pl)}</h3>
             <p className={styles.modalDate}>{formatDate(activePost.created_at)}</p>
-
             <div className={styles.modalBody}>
-              {(activePost.content ?? '').split('\n').map((para, i) =>
+              {(gf(activePost.content, activePost.content_ua, activePost.content_pl) ?? '').split('\n').map((para, i) =>
                 para.trim() ? <p key={i}>{para}</p> : <br key={i} />
               )}
             </div>
-
             <div className={styles.modalFooter}>
-              <button className={styles.subscribeBtn} onClick={openSubscribe}>
-                Subscribe for updates
-              </button>
-              <button className={styles.closeBtn} onClick={() => setActivePost(null)}>
-                Close
-              </button>
+              <button className={styles.subscribeBtn} onClick={openSubscribe}>{subscribeLabel}</button>
+              <button className={styles.closeBtn} onClick={() => setActivePost(null)}>{closeLabel}</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ===== SUBSCRIBE MODAL (on top of article modal) ===== */}
+      {/* ===== SUBSCRIBE MODAL ===== */}
       {showSubscribe && (
-        <div
-          className={styles.subscribeOverlay}
-          onClick={e => { if (e.target === e.currentTarget) setShowSubscribe(false); }}
-        >
+        <div className={styles.subscribeOverlay}
+          onClick={e => { if (e.target === e.currentTarget) setShowSubscribe(false); }}>
           <div className={styles.subscribeBox}>
-            <button
-              className={styles.modalClose}
-              onClick={() => setShowSubscribe(false)}
-              aria-label="Close"
-            >✕</button>
-
-            <h3 className={styles.modalTitle}>Stay updated</h3>
+            <button className={styles.modalClose} onClick={() => setShowSubscribe(false)} aria-label="Close">✕</button>
+            <h3 className={styles.modalTitle}>{gl('Stay updated', 'Будь в курсі', 'Bądź na bieżąco')}</h3>
             <p className={styles.subscribeSubtitle}>
-              Be the first to hear about Mitlar developments.
+              {gl('Be the first to hear about Mitlar developments.',
+                  'Першим дізнавайся про розвиток Mitlar.',
+                  'Bądź pierwszym, który dowie się o rozwoju Mitlar.')}
             </p>
-
             {subSuccess ? (
-              <p className={styles.successMsg}>Thank you! You&apos;re subscribed. 🌿</p>
+              <p className={styles.successMsg}>
+                {gl("Thank you! You're subscribed. 🌿", 'Дякуємо! Ви підписані. 🌿', 'Dziękujemy! Jesteś zapisany. 🌿')}
+              </p>
             ) : (
               <form onSubmit={handleSubscribe} className={styles.subscribeForm}>
-                <input
-                  type="email"
-                  required
-                  placeholder="Your email address"
-                  value={subEmail}
-                  onChange={e => setSubEmail(e.target.value)}
-                  className={styles.subInput}
-                />
+                <input type="email" required className={styles.subInput}
+                  placeholder={gl('Your email address', 'Ваш email...', 'Twój email...')}
+                  value={subEmail} onChange={e => setSubEmail(e.target.value)} />
                 <label className={styles.rodoLabel}>
-                  <input
-                    type="checkbox"
-                    checked={subRodo}
-                    onChange={e => setSubRodo(e.target.checked)}
-                    className={styles.checkbox}
-                  />
+                  <input type="checkbox" checked={subRodo} onChange={e => setSubRodo(e.target.checked)} className={styles.checkbox} />
                   <span>
-                    I consent to data processing —{' '}
-                    <span className={styles.rodoLink}>RODO / Privacy Policy</span>
+                    {gl('I consent to data processing — ', 'Я даю згоду на обробку даних — ', 'Wyrażam zgodę na przetwarzanie danych — ')}
+                    <span className={styles.rodoLink}>{gl('Privacy Policy (RODO)', 'Політика конфіденційності (RODO)', 'Polityka Prywatności (RODO)')}</span>
                   </span>
                 </label>
                 {subError && <p className={styles.errorMsg}>{subError}</p>}
-                <button type="submit" className={styles.subSubmitBtn}>
-                  Subscribe
-                </button>
+                <button type="submit" className={styles.subSubmitBtn}>{gl('Subscribe', 'Підписатись', 'Subskrybuj')}</button>
               </form>
             )}
           </div>
