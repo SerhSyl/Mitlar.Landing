@@ -1,82 +1,68 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../lib/LanguageContext';
 import styles from './About.module.css';
 
-const CARDS = [
-  {
-    id: 1,
-    title:    { ua: 'Поле',        en: 'The Field',      pl: 'Pole' },
-    subtitle: { ua: 'Динамічні ігрові зони', en: 'Dynamic play zones', pl: 'Dynamiczne strefy gry' },
-    desc: {
-      ua: 'Mitlar грається на спеціально спроектованому полі, поділеному на чотири інтерактивні зони. Кожна зона має унікальні правила і тактичне значення, що вимагає від команд постійної адаптації стратегії.',
-      en: 'Mitlar is played on a specially designed field divided into four interactive zones. Each zone has unique rules and tactical significance, requiring teams to adapt their strategy constantly.',
-      pl: 'Mitlar rozgrywany jest na specjalnie zaprojektowanym boisku podzielonym na cztery interaktywne strefy. Każda strefa ma unikalne zasady i znaczenie taktyczne, co wymaga ciągłego dostosowywania strategii.',
-    },
-    bg: 'linear-gradient(135deg, #3d4a33, #5a6b4a)',
-  },
-  {
-    id: 2,
-    title:    { ua: 'Команда',     en: 'The Team',       pl: 'Drużyna' },
-    subtitle: { ua: 'Співпраця і стратегія', en: 'Cooperation & strategy', pl: 'Współpraca i strategia' },
-    desc: {
-      ua: 'Команда Mitlar складається з 5 гравців на моноколесах. Позиції гнучкі — гравці динамічно змінюють ролі залежно від стану гри, що вимагає глибокої командної синхронізації.',
-      en: 'A Mitlar team consists of 5 players, each riding a monowheel. Positions are fluid — players switch roles dynamically based on the game state, demanding deep team synchronisation.',
-      pl: 'Drużyna Mitlar składa się z 5 graczy na monokołach. Pozycje są płynne — gracze dynamicznie zmieniają role w zależności od stanu gry, wymagając głębokiej synchronizacji zespołu.',
-    },
-    bg: 'linear-gradient(135deg, #5c4a30, #7a6240)',
-  },
-  {
-    id: 3,
-    title:    { ua: 'Обладнання', en: 'The Equipment',  pl: 'Sprzęt' },
-    subtitle: { ua: 'Спеціально розроблене спорядження', en: 'Specially designed gear', pl: 'Specjalnie zaprojektowany sprzęt' },
-    desc: {
-      ua: 'Кожен елемент обладнання Mitlar розроблений спеціально для цього виду спорту. Від ковзного мітла до захисного спорядження — кожен предмет поєднує ефективність, безпеку та унікальну естетику.',
-      en: 'Every piece of Mitlar equipment is custom-designed for the sport. From the gliding broom to protective wear — each item balances performance, safety and the unique aesthetics of the game.',
-      pl: 'Każdy element sprzętu Mitlar jest specjalnie zaprojektowany dla tego sportu. Od gliding broom po odzież ochronną — każdy przedmiot łączy wydajność, bezpieczeństwo i unikalną estetykę gry.',
-    },
-    bg: 'linear-gradient(135deg, #2e4a3d, #3d6b55)',
-  },
-  {
-    id: 4,
-    title:    { ua: 'Правила',     en: 'The Rules',      pl: 'Zasady' },
-    subtitle: { ua: 'Легко вивчити, важко опанувати', en: 'Simple to learn, deep to master', pl: 'Proste do nauki, głębokie do opanowania' },
-    desc: {
-      ua: 'Правила Mitlar розроблені для інтуїтивного старту, але пропонують багату стратегічну глибину. Система нарахування очок винагороджує як індивідуальну майстерність, так і командний інтелект.',
-      en: 'Mitlar rules are crafted for intuitive entry while offering rich strategic depth. The scoring system rewards both individual skill and collective intelligence, making every match unique.',
-      pl: 'Zasady Mitlar są stworzone dla intuicyjnego wejścia, oferując bogatą głębię strategiczną. System punktacji nagradza zarówno indywidualne umiejętności, jak i zbiorową inteligencję.',
-    },
-    bg: 'linear-gradient(135deg, #3d3050, #564268)',
-  },
-];
+interface AboutCard {
+  id: string;
+  sort_order: number;
+  title: string;       title_ua: string;       title_pl: string;
+  subtitle: string;    subtitle_ua: string;    subtitle_pl: string;
+  description: string; description_ua: string; description_pl: string;
+  bg_gradient: string;
+  image_url: string | null;
+}
 
 export default function About() {
   const { language } = useLanguage();
-  const g = (field: { ua: string; en: string; pl: string }) =>
-    language === 'ua' ? field.ua : language === 'pl' ? field.pl : field.en;
-
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [cards, setCards] = useState<AboutCard[]>([]);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    // Fetch cards
+    supabase
+      .from('about_cards')
+      .select('*')
+      .order('sort_order')
+      .then(({ data }) => { if (data) setCards(data as AboutCard[]); });
+
+    // Fetch banner_url from sections
+    supabase
+      .from('sections')
+      .select('banner_url')
+      .eq('key', 'about')
+      .single()
+      .then(({ data }) => {
+        if (data && (data as any).banner_url) setBannerUrl((data as any).banner_url);
+      });
+  }, []);
+
+  const g = (card: AboutCard, field: 'title' | 'subtitle' | 'description') => {
+    if (language === 'ua') return card[`${field}_ua`] || card[field];
+    if (language === 'pl') return card[`${field}_pl`] || card[field];
+    return card[field];
+  };
+
+  // Card background: image if set, otherwise gradient
+  const cardBgStyle = (card: AboutCard): React.CSSProperties =>
+    card.image_url
+      ? { backgroundImage: `url(${card.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+      : { background: card.bg_gradient };
 
   const close = useCallback(() => {
     setIsClosing(true);
-    setTimeout(() => {
-      setActiveId(null);
-      setIsClosing(false);
-    }, 220);
+    setTimeout(() => { setActiveId(null); setIsClosing(false); }, 220);
   }, []);
 
-  const toggle = (id: number) => {
-    if (activeId === id) {
-      close();
-    } else {
-      setIsClosing(false);
-      setActiveId(id);
-    }
+  const toggle = (id: string) => {
+    if (activeId === id) { close(); }
+    else { setIsClosing(false); setActiveId(id); }
   };
 
-  const activeCard = CARDS.find(c => c.id === activeId) ?? null;
-
+  const activeCard = cards.find(c => c.id === activeId) ?? null;
   const moreLabel    = language === 'ua' ? 'Більше ↓' : language === 'pl' ? 'Więcej ↓' : 'More ↓';
   const sectionTitle = language === 'ua' ? 'Про гру'  : language === 'pl' ? 'O grze'   : 'About the Game';
 
@@ -84,26 +70,20 @@ export default function About() {
     <section className={styles.section} id="section-about">
       <div className={styles.glassCard}>
         <div className={styles.layout}>
-
-          {/* ── Left: title + 2×2 grid ── */}
           <div className={styles.leftPanel}>
             <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
-
             <div className={styles.grid}>
-              {CARDS.map(card => (
-                <div
-                  key={card.id}
-                  className={styles.card}
-                  onClick={() => toggle(card.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && toggle(card.id)}
-                >
-                  <div className={styles.cardBg} style={{ background: card.bg }} />
+              {cards.map(card => (
+                <div key={card.id} className={styles.card}
+                  onClick={() => toggle(card.id)} role="button" tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && toggle(card.id)}>
+                  {/* Background: photo or gradient */}
+                  <div className={styles.cardBg} style={cardBgStyle(card)} />
+                  {/* Gradient overlay — always visible */}
                   <div className={styles.cardGradient} />
                   <div className={styles.cardInner}>
-                    <h3 className={styles.cardTitle}>{g(card.title)}</h3>
-                    <p className={styles.cardSubtitle}>{g(card.subtitle)}</p>
+                    <h3 className={styles.cardTitle}>{g(card, 'title')}</h3>
+                    <p className={styles.cardSubtitle}>{g(card, 'subtitle')}</p>
                     <div className={styles.cardFooter}>
                       <span className={styles.toggleBtn}>{moreLabel}</span>
                     </div>
@@ -112,34 +92,37 @@ export default function About() {
               ))}
             </div>
 
-            {/* ── Expanded card overlay (80% of leftPanel) ── */}
+            {/* Expanded overlay */}
             {activeCard && (
-              <div
-                className={`${styles.expandOverlay} ${isClosing ? styles.expandOverlayOut : ''}`}
-                onClick={e => { if (e.target === e.currentTarget) close(); }}
-              >
+              <div className={`${styles.expandOverlay} ${isClosing ? styles.expandOverlayOut : ''}`}
+                onClick={e => { if (e.target === e.currentTarget) close(); }}>
                 <div
                   className={`${styles.expandBox} ${isClosing ? styles.expandBoxOut : ''}`}
-                  style={{ background: activeCard.bg }}
+                  style={cardBgStyle(activeCard)}
                 >
+                  {/* Gradient overlay preserved in expanded view too */}
                   <div className={styles.expandGradient} />
                   <div className={styles.expandInner}>
                     <button className={styles.closeBtn} onClick={close} aria-label="Close">✕</button>
-                    <h3 className={styles.expandTitle}>{g(activeCard.title)}</h3>
-                    <p className={styles.expandSubtitle}>{g(activeCard.subtitle)}</p>
-                    <p className={styles.expandDesc}>{g(activeCard.desc)}</p>
+                    <h3 className={styles.expandTitle}>{g(activeCard, 'title')}</h3>
+                    <p className={styles.expandSubtitle}>{g(activeCard, 'subtitle')}</p>
+                    <p className={styles.expandDesc}>{g(activeCard, 'description')}</p>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ── Right: banner placeholder ── */}
+          {/* Right banner: image if set, otherwise dark gradient placeholder */}
           <div className={styles.rightBanner}>
-            <div className={styles.bannerPlaceholder} />
+            <div
+              className={styles.bannerPlaceholder}
+              style={bannerUrl
+                ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : undefined}
+            />
             <div className={styles.bannerFade} />
           </div>
-
         </div>
       </div>
     </section>

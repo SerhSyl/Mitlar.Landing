@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import {
   toggleSectionVisibility,
   updateHero,
+  updateAboutCard,
+  updateSectionBanner,
   createPost,
   updatePost,
   togglePublish,
@@ -25,6 +27,14 @@ interface BlogPost {
   excerpt: string; excerpt_pl: string; excerpt_ua: string;
   content: string; content_pl: string; content_ua: string;
   pin_position: number | null; is_published: boolean; created_at: string;
+}
+interface AboutCard {
+  id: string; sort_order: number;
+  title: string; title_ua: string; title_pl: string;
+  subtitle: string; subtitle_ua: string; subtitle_pl: string;
+  description: string; description_ua: string; description_pl: string;
+  bg_gradient: string;
+  image_url: string | null;
 }
 
 type TabKey = 'hero' | 'about' | 'equipment' | 'devblog' | 'contacts';
@@ -109,6 +119,61 @@ function SectionToggle({ section, onToggle }: { section: SectionRow; onToggle: (
   );
 }
 
+// ---- AboutCardRow ----
+function AboutCardRow({ card, lang, onSave }: {
+  card: AboutCard; lang: 'en' | 'pl' | 'ua';
+  onSave: (id: string, data: Partial<AboutCard>) => void;
+}) {
+  const [draft, setDraft] = useState<Partial<AboutCard>>(card);
+  const [open, setOpen] = useState(false);
+
+  const titleKey       = lang === 'en' ? 'title'       : lang === 'ua' ? 'title_ua'       : 'title_pl';
+  const subtitleKey    = lang === 'en' ? 'subtitle'    : lang === 'ua' ? 'subtitle_ua'    : 'subtitle_pl';
+  const descriptionKey = lang === 'en' ? 'description' : lang === 'ua' ? 'description_ua' : 'description_pl';
+
+  return (
+    <div className={styles.postRow}>
+      <div className={styles.postMeta}>
+        <div style={{ width: 12, height: 12, borderRadius: 3, background: card.bg_gradient, display: 'inline-block', marginRight: 8 }} />
+        <strong className={styles.postTitle}>{card.title}</strong>
+      </div>
+      <div className={styles.postActions}>
+        <button className={styles.btnSm} onClick={() => setOpen(o => !o)}>{open ? 'Close' : 'Edit'}</button>
+      </div>
+      {open && (
+        <div className={styles.postForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Title ({lang.toUpperCase()})</label>
+            <input className={styles.input} value={(draft[titleKey as keyof AboutCard] ?? '') as string}
+              onChange={e => setDraft(d => ({ ...d, [titleKey]: e.target.value }))} />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Subtitle ({lang.toUpperCase()})</label>
+            <input className={styles.input} value={(draft[subtitleKey as keyof AboutCard] ?? '') as string}
+              onChange={e => setDraft(d => ({ ...d, [subtitleKey]: e.target.value }))} />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Description ({lang.toUpperCase()})</label>
+            <textarea className={styles.input} rows={4} value={(draft[descriptionKey as keyof AboutCard] ?? '') as string}
+              onChange={e => setDraft(d => ({ ...d, [descriptionKey]: e.target.value }))} />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Card Image URL</label>
+            <input className={styles.input}
+              placeholder="https://... (leave empty to use gradient)"
+              value={(draft.image_url ?? '') as string}
+              onChange={e => setDraft(d => ({ ...d, image_url: e.target.value || null }))} />
+          </div>
+          <div className={styles.formActions}>
+            <button className={styles.btn} onClick={() => { onSave(card.id, draft); setOpen(false); }}>Save</button>
+            <button className={styles.btnOutline} onClick={() => setOpen(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---- Main ----
 export default function AdminPage() {
   const [authed,   setAuthed]   = useState(false);
@@ -116,19 +181,28 @@ export default function AdminPage() {
   const [tab,      setTab]      = useState<TabKey>('hero');
   const [lang,     setLang]     = useState<'en' | 'pl' | 'ua'>('en');
   const [msg,      setMsg]      = useState('');
-  const [sections, setSections] = useState<SectionRow[]>([]);
-  const [hero, setHero] = useState<HeroData>({ slogan:'', slogan_pl:'', slogan_ua:'', button_text:'', button_text_pl:'', button_text_ua:'', image_url:'' });
-  const [posts,   setPosts]   = useState<BlogPost[]>([]);
-  const [showNew, setShowNew] = useState(false);
-  const [newPost, setNewPost] = useState<Partial<BlogPost>>({});
+  const [sections,    setSections]    = useState<SectionRow[]>([]);
+  const [hero,        setHero]        = useState<HeroData>({ slogan:'', slogan_pl:'', slogan_ua:'', button_text:'', button_text_pl:'', button_text_ua:'', image_url:'' });
+  const [aboutCards,  setAboutCards]  = useState<AboutCard[]>([]);
+  const [aboutBannerUrl, setAboutBannerUrl] = useState('');
+  const [posts,       setPosts]       = useState<BlogPost[]>([]);
+  const [showNew,     setShowNew]     = useState(false);
+  const [newPost,     setNewPost]     = useState<Partial<BlogPost>>({});
 
   function flash(m: string) { setMsg(m); setTimeout(() => setMsg(''), 3000); }
   function login() { if (password === 'mitlar2026') setAuthed(true); else setMsg('Wrong password'); }
 
   useEffect(() => {
     if (!authed) return;
-    supabase.from('sections').select('*').order('sort_order').then(({ data }) => { if (data) setSections(data); });
+    supabase.from('sections').select('*').order('sort_order').then(({ data }) => {
+      if (data) {
+        setSections(data);
+        const aboutSec = data.find((s: SectionRow & { banner_url?: string }) => s.key === 'about');
+        if (aboutSec && (aboutSec as any).banner_url) setAboutBannerUrl((aboutSec as any).banner_url);
+      }
+    });
     supabase.from('hero').select('*').single().then(({ data }) => { if (data) setHero(data); });
+    supabase.from('about_cards').select('*').order('sort_order').then(({ data }) => { if (data) setAboutCards(data as AboutCard[]); });
     loadPosts();
   }, [authed]);
 
@@ -141,6 +215,14 @@ export default function AdminPage() {
     await toggleSectionVisibility(key, cur);
     setSections(ss => ss.map(s => s.key === key ? { ...s, is_visible: !cur } : s));
     flash(`Section "${key}" ${cur ? 'hidden' : 'shown'} ✓`);
+  }
+
+  async function handleSaveAboutCard(id: string, draft: Partial<AboutCard>) {
+    const fd = new FormData();
+    Object.entries(draft).forEach(([k, v]) => fd.append(k, (v ?? '') as string));
+    await updateAboutCard(id, fd);
+    setAboutCards(cs => cs.map(c => c.id === id ? { ...c, ...draft } : c));
+    flash('Card saved ✓');
   }
 
   async function saveHero() {
@@ -281,10 +363,51 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ===== ABOUT / EQUIPMENT / CONTACTS ===== */}
-        {tab === 'about'    && <ComingSoonPanel sectionKey="about" />}
-        {tab === 'equipment'&& <ComingSoonPanel sectionKey="equipment" />}
-        {tab === 'contacts' && <ComingSoonPanel sectionKey="contacts" />}
+        {/* ===== ABOUT ===== */}
+        {tab === 'about' && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <h2 className={styles.panelTitle}>🏟 About the Game</h2>
+            </div>
+            {sections.find(s => s.key === 'about') &&
+              <SectionToggle section={sections.find(s => s.key === 'about')!} onToggle={handleToggleSection} />}
+            <div className={styles.langTabs}>
+              {(['en','pl','ua'] as const).map(l => (
+                <button key={l} className={`${styles.langTab} ${lang === l ? styles.langActive : ''}`} onClick={() => setLang(l)}>
+                  {l === 'en' ? '🇬🇧 EN' : l === 'pl' ? '🇵🇱 PL' : '🇺🇦 UA'}
+                </button>
+              ))}
+            </div>
+            <div className={styles.postsList}>
+              {aboutCards.map(card => (
+                <AboutCardRow key={card.id} card={card} lang={lang} onSave={handleSaveAboutCard} />
+              ))}
+            </div>
+            <div className={styles.visibilityRow} style={{ marginTop: '1.5rem' }}>
+              <div>
+                <strong className={styles.visLabel}>Section Banner Image</strong>
+                <p className={styles.visHint}>Right-side banner for the About section</p>
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Banner Image URL</label>
+              <input
+                className={styles.input}
+                placeholder="https://... (paste image URL)"
+                value={aboutBannerUrl}
+                onChange={e => setAboutBannerUrl(e.target.value)}
+              />
+            </div>
+            <button className={styles.btn} onClick={async () => {
+              await updateSectionBanner('about', aboutBannerUrl);
+              flash('Banner saved ✓');
+            }}>Save Banner</button>
+          </div>
+        )}
+
+        {/* ===== EQUIPMENT / CONTACTS ===== */}
+        {tab === 'equipment' && <ComingSoonPanel sectionKey="equipment" />}
+        {tab === 'contacts'  && <ComingSoonPanel sectionKey="contacts" />}
 
         {/* ===== DEV BLOG ===== */}
         {tab === 'devblog' && (

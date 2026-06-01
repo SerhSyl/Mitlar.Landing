@@ -113,6 +113,38 @@ export async function deletePost(id: string) {
   revalidatePath('/');
 }
 
+// ---- ABOUT CARDS ----
+
+export async function updateAboutCard(id: string, formData: FormData) {
+  const title          = formData.get('title')          as string;
+  const title_ua       = formData.get('title_ua')       as string | null;
+  const title_pl       = formData.get('title_pl')       as string | null;
+  const subtitle       = formData.get('subtitle')       as string | null;
+  const subtitle_ua    = formData.get('subtitle_ua')    as string | null;
+  const subtitle_pl    = formData.get('subtitle_pl')    as string | null;
+  const description    = formData.get('description')    as string | null;
+  const description_ua = formData.get('description_ua') as string | null;
+  const description_pl = formData.get('description_pl') as string | null;
+  const image_url      = formData.get('image_url')      as string | null;
+
+  const { error } = await supabaseAdmin
+    .from('about_cards')
+    .update({ title, title_ua, title_pl, subtitle, subtitle_ua, subtitle_pl, description, description_ua, description_pl, image_url })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+}
+
+export async function updateSectionBanner(key: string, bannerUrl: string) {
+  const { error } = await supabaseAdmin
+    .from('sections')
+    .update({ banner_url: bannerUrl || null })
+    .eq('key', key);
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+}
+
 // ---- CONTACTS ----
 
 export async function updateContacts(formData: FormData) {

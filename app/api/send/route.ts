@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {
     const { post, audience } = await req.json();
 
-    let query = supabase.from('waitlist').select('email').eq('newsletter_consent', true);
+    let query = supabaseAdmin.from('waitlist').select('email').eq('newsletter_consent', true);
     
     if (audience === 'equipment') query = query.like('source', 'Товар:%');
     else if (audience === 'newsletter') query = query.eq('source', 'footer_newsletter');

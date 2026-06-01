@@ -9,13 +9,13 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  language: 'ua',
+  language: 'en',
   setLanguage: () => {},
   t: (key) => key,
 });
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguageState] = useState<Language>('ua');
+  const [language, setLanguageState] = useState<Language>('en');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <LanguageContext.Provider value={{ language: mounted ? language : 'ua', setLanguage, t }}>
+    <LanguageContext.Provider value={{ language: mounted ? language : 'en', setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
