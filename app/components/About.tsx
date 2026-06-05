@@ -96,19 +96,23 @@ export default function About() {
             {activeCard && (
               <div className={`${styles.expandOverlay} ${isClosing ? styles.expandOverlayOut : ''}`}
                 onClick={e => { if (e.target === e.currentTarget) close(); }}>
-                <div
-                  className={`${styles.expandBox} ${isClosing ? styles.expandBoxOut : ''}`}
-                  style={cardBgStyle(activeCard)}
-                >
-                  {/* Gradient overlay preserved in expanded view too */}
-                  <div className={styles.expandGradient} />
-                  <div className={styles.expandInner}>
+                  <div
+                    className={`${styles.expandBox} ${isClosing ? styles.expandBoxOut : ''}`}
+                    style={cardBgStyle(activeCard)}
+                  >
+                    {/* Gradient overlay */}
+                    <div className={styles.expandGradient} />
+                    {/* Close button — anchored to card, not to text area */}
                     <button className={styles.closeBtn} onClick={close} aria-label="Close">✕</button>
-                    <h3 className={styles.expandTitle}>{g(activeCard, 'title')}</h3>
-                    <p className={styles.expandSubtitle}>{g(activeCard, 'subtitle')}</p>
-                    <p className={styles.expandDesc}>{g(activeCard, 'description')}</p>
+                    {/* Scrollable area full-width so scrollbar is at right edge of card */}
+                    <div className={styles.expandScrollArea}>
+                      <div className={styles.expandInner}>
+                        <h3 className={styles.expandTitle}>{g(activeCard, 'title')}</h3>
+                        <p className={styles.expandSubtitle}>{g(activeCard, 'subtitle')}</p>
+                        <p className={styles.expandDesc}>{g(activeCard, 'description')}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
               </div>
             )}
           </div>

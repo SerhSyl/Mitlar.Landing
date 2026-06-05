@@ -3,15 +3,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(242, 235, 225, 0.55);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(195, 157, 103, 0.3);
   border-radius: 999px;
   padding: 3px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .langBtn {
@@ -25,7 +25,7 @@
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: rgba(240, 232, 216, 0.55);
+  color: rgba(58, 53, 42, 0.6);   /* dark — visible on light bg */
   cursor: pointer;
   transition: color 0.22s ease;
   white-space: nowrap;
@@ -33,7 +33,7 @@
 }
 
 .langBtn:hover {
-  color: rgba(240, 232, 216, 0.85);
+  color: rgba(58, 53, 42, 0.9);
 }
 
 .langBtnActive {

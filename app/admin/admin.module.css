@@ -81,24 +81,10 @@
   margin-bottom: 1.5rem;
 }
 
-/* ---- Language tabs ---- */
-.langTabs {
-  display: flex;
-  gap: 0.4rem;
-  margin-bottom: 1.2rem;
-}
-.langTab {
-  background: none;
-  border: 1px solid rgba(195,157,103,0.25);
-  border-radius: 999px;
-  color: #7a6a5a;
-  padding: 0.3rem 0.9rem;
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.langTab:hover { border-color: #c39d67; color: #c39d67; }
-.langActive    { background: rgba(195,157,103,0.15); border-color: #c39d67; color: #c39d67; }
+/* ---- Language tabs — hidden (not functional yet) ---- */
+.langTabs { display: none; }
+.langTab  { display: none; }
+.langActive { display: none; }
 
 /* ---- Form ---- */
 .formGroup  { margin-bottom: 0.9rem; }

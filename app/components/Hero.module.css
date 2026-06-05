@@ -113,8 +113,15 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 55%;
-  background: linear-gradient(to right, var(--color-bg-primary) 0%, rgba(242, 235, 225, 0.6) 60%, transparent 100%);
+  width: 65%;
+  background: linear-gradient(
+    to right,
+    var(--color-bg-primary) 0%,
+    var(--color-bg-primary) 10%,
+    rgba(242, 235, 225, 0.85) 40%,
+    rgba(242, 235, 225, 0.3) 65%,
+    transparent 100%
+  );
 }
 
 @media (max-width: 768px) {
